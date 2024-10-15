@@ -26,7 +26,7 @@ void setup()
 void loop()
 {
 
-    bool sw = digitalRead(PIN_SWITCH);
+    bool sw = !digitalRead(PIN_SWITCH);
 
     // put your main code here, to run repeatedly:
     digitalWrite(PIN_LED, sw ? HIGH : LOW);
