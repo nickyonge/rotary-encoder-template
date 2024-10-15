@@ -10,6 +10,8 @@
 #define BLINK_MIN 100
 #define BLINK_MAX 2000
 
+#define ENCODER_BLINK_WRAP // comment out to lock lerp at 0-100, uncomment to wrap 
+
 #define BLINK_INCREMENT 1
 
 int blinkTimer = 0;    // time value, constantly incrementing in ms
@@ -54,11 +56,22 @@ void loop()
     if (pos != newPos) {
         int delta = newPos - pos;
         blinkLerp += delta * BLINK_INCREMENT;
+        #ifdef ENCODER_BLINK_WRAP
+        //wrap around at 100 
+        while (blinkLerp < 0) {
+            blinkLerp += 100;
+        }
+        while (blinkLerp > 100) {
+            blinkLerp -= 100;
+        }
+        #else
+        // cap to 100 
         if (blinkLerp < 0) {
             blinkLerp = 0;
         } else if (blinkLerp > 100) {
             blinkLerp = 100;
         }
+        #endif
         pos = newPos;
     }
 
