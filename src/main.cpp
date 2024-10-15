@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
 #define PIN_LED 5
-#define PIN_SWITCH 6
+#define PIN_SWITCH 4
 
 #pragma region PINMAPPING_CCW_DEFINITION
 // some basic warnings to ensure Arduino pinmapping is CCW
