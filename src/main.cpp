@@ -7,8 +7,8 @@
 #include <EnableInterrupt.h>
 
 // #define MODE_LED_BLINK   // blink on/off LED mode
-// #define MODE_LED_BOOLEAN // Boolean counting LED mode
-#define MODE_LED_TIMED // timed LED mode (useful for debugging)
+#define MODE_LED_BOOLEAN // Boolean counting LED mode
+#define MODE_LED_TIMED   // timed LED mode (useful for debugging)
 
 #define PIN_ENC_SWITCH 4
 #define PIN_ENC_INPUT_1 3 // A7, PCINT7
@@ -56,9 +56,12 @@ bool blinkLED = false; // is the LED currently on via blinking
 // #define ENCODER_BOOLEAN_LOCK_INCREMENT // lock bool increment to +/- 1 per pulse
 #define LED_BOOL_ZERODELTA_JUMP // if delta == 0 and inc locked, offset bool by 8
 
+// value, from 0-15, to set boolean LEDs to
 int booleanValue = 0;
 
-// set boolean LED values based on an input int (value must be 0-15)
+// update boolean LEDs to current booleanValue
+void setBooleanLEDs();
+// set boolean LED values based on an input int (value must be 0-15), autoupdates booleanValue
 void setBooleanLEDs(int value);
 // set boolean LED values directly
 void setBooleanLEDs(bool a, bool b, bool c, bool d);
@@ -187,7 +190,7 @@ void loop()
         {
             booleanValue -= 16;
         }
-        setBooleanLEDs(booleanValue);
+        setBooleanLEDs();
 #endif
 
 #ifdef MODE_LED_TIMED
@@ -232,7 +235,7 @@ void loop()
         // if bool mode and timed value done, reset bool LEDs
         if (ledTimedValue == 0)
         {
-            setBooleanLEDs(booleanValue);
+            setBooleanLEDs();
         }
 #endif
     }
@@ -242,7 +245,7 @@ void loop()
     {
 // switch state changed, update as needed
 #ifdef MODE_LED_BOOLEAN
-        setBooleanLEDs(booleanValue);
+        setBooleanLEDs();
 #endif
     }
 
@@ -252,17 +255,22 @@ void loop()
 
 #ifdef MODE_LED_BOOLEAN
 
-void setBooleanLEDs(int value)
+void setBooleanLEDs(int booleanValueTo)
 {
-    while (value < 0)
+    booleanValue = booleanValueTo;
+    setBooleanLEDs();
+}
+void setBooleanLEDs()
+{
+    while (booleanValue < 0)
     {
-        value += 16;
+        booleanValue += 16;
     }
-    while (value >= 16)
+    while (booleanValue >= 16)
     {
-        value -= 16;
+        booleanValue -= 16;
     }
-    switch (value)
+    switch (booleanValue)
     {
     case 0:
         setBooleanLEDs(false, false, false, false);
