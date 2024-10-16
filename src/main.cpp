@@ -22,6 +22,8 @@
 RotaryEncoder encoder(PIN_ENC_INPUT_1, PIN_ENC_INPUT_2, RotaryEncoder::LatchMode::FOUR3);
 // FOUR0 - default, inc/dec pos by 1, reverse direction results in 0
 
+static bool sw = false;// is switch currently pressed? read at beginning of loop()
+
 // ----------------------------- LED BLINK MODE SETUP
 #ifdef MODE_LED_BLINK
 #define PIN_LED_BLINK 5
@@ -107,7 +109,7 @@ void loop()
 {
 
     // get switch input
-    static bool sw = !digitalRead(PIN_ENC_SWITCH); // if sw true, force LED on
+    sw = !digitalRead(PIN_ENC_SWITCH); // if sw true, force LED on
 
     // get encoder input
     static int pos = 0;
@@ -277,10 +279,10 @@ void setBooleanLEDs(int value)
 }
 void setBooleanLEDs(bool a, bool b, bool c, bool d)
 {
-    digitalWrite(PIN_LED_BOOL_A, a ? HIGH : LOW);
-    digitalWrite(PIN_LED_BOOL_B, b ? HIGH : LOW);
-    digitalWrite(PIN_LED_BOOL_C, c ? HIGH : LOW);
-    digitalWrite(PIN_LED_BOOL_D, d ? HIGH : LOW);
+    digitalWrite(PIN_LED_BOOL_A, sw || a ? HIGH : LOW);
+    digitalWrite(PIN_LED_BOOL_B, sw || b ? HIGH : LOW);
+    digitalWrite(PIN_LED_BOOL_C, sw || c ? HIGH : LOW);
+    digitalWrite(PIN_LED_BOOL_D, sw || d ? HIGH : LOW);
 }
 
 #endif
