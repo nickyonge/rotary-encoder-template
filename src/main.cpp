@@ -11,10 +11,13 @@
 #define PIN_ENC_INPUT_1 3 // A7, PCINT7
 #define PIN_ENC_INPUT_2 2 // INT0, PCINT10
 
+// FOUR3 - preferred, inc/dec pos by 1, reverse direction applies inc/dec as expected
+// TWO03 - inc/dec pos by 2, reverse direction applies inc/dec as expected
 // RotaryEncoder encoder(PIN_ENC_INPUT_1, PIN_ENC_INPUT_2);// default FOUR0
 // RotaryEncoder encoder(PIN_ENC_INPUT_1, PIN_ENC_INPUT_2, RotaryEncoder::LatchMode::TWO03);
 // RotaryEncoder encoder(PIN_ENC_INPUT_1, PIN_ENC_INPUT_2, RotaryEncoder::LatchMode::FOUR0);
 RotaryEncoder encoder(PIN_ENC_INPUT_1, PIN_ENC_INPUT_2, RotaryEncoder::LatchMode::FOUR3);
+// FOUR0 - default, inc/dec pos by 1, reverse direction results in 0
 
 // ----------------------------- LED BLINK MODE SETUP
 #ifdef MODE_LED_BLINK
