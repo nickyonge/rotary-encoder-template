@@ -27,6 +27,7 @@ static bool sw = false; // is switch currently pressed? read at beginning of loo
 // #define SWITCH_SETS_LEDS          // if defined, holding switch sets LEDs to the given state
 #define SWITCH_SET_LED_STATE HIGH // if SWITCH_SETS_LEDS defined, set them to this state
 
+void onInterrupt();                               // called on switch interrupt
 void digitalWritePin(uint8_t pin, uint8_t state); // digitalWrite that accommodates pin state
 
 // ----------------------------- LED BLINK MODE SETUP
@@ -109,16 +110,9 @@ void setup()
 
 #ifdef MODE_LED_TIMED
     pinMode(PIN_LED_TIMED, OUTPUT);
-
-    // demo timed on start
-    timedLED();
-    // weirdly, enableInterrput method (timedLED) only seems to work 
-    // if it's also called in setup or at least once before being used 
-    
-    // timed interrupt
-    enableInterrupt(PIN_ENC_SWITCH, timedLED, FALLING);
 #endif
 
+    enableInterrupt(PIN_ENC_SWITCH, onInterrupt, FALLING);
 }
 
 void loop()
@@ -251,6 +245,14 @@ void loop()
 
     // end loop
     delay(1);
+}
+
+void onInterrupt()
+{
+#ifdef MODE_LED_BOOLEAN
+    booleanValue += 8;
+    setBooleanLEDs();
+#endif
 }
 
 #ifdef MODE_LED_BOOLEAN
