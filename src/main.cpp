@@ -1,6 +1,5 @@
 // basic test script for using a rotary encoder with an ATtiny84
 
-// TODO: attach interrupt pin to INT0, PCINT10 (pin 2)
 // TODO: attach interrupt pin to enc switch and confirm sleep
 
 #include <Arduino.h>
@@ -108,10 +107,15 @@ void setup()
 #ifdef MODE_LED_TIMED
     pinMode(PIN_LED_TIMED, OUTPUT);
 
+    // demo timed on start
+    timedLED();
+    // weirdly, enableInterrput method (timedLED) only seems to work 
+    // if it's also called in setup or at least once before being used 
+    
     // timed interrupt
-    enableInterrupt(PIN_ENC_SWITCH, timedLEDAlt, CHANGE);
-
+    enableInterrupt(PIN_ENC_SWITCH, timedLED, FALLING);
 #endif
+
 }
 
 void loop()
