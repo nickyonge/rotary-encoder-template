@@ -8,13 +8,13 @@
 // #define MODE_LED_TIMED
 
 #define PIN_ENC_SWITCH 4
-#define PIN_ENC_INPUT_1 2 // INT0, PCINT10
-#define PIN_ENC_INPUT_2 3 // A7, PCINT7
+#define PIN_ENC_INPUT_1 3 // A7, PCINT7
+#define PIN_ENC_INPUT_2 2 // INT0, PCINT10
 
-RotaryEncoder encoder(PIN_ENC_INPUT_1, PIN_ENC_INPUT_2);
+// RotaryEncoder encoder(PIN_ENC_INPUT_1, PIN_ENC_INPUT_2);// default FOUR0
 // RotaryEncoder encoder(PIN_ENC_INPUT_1, PIN_ENC_INPUT_2, RotaryEncoder::LatchMode::TWO03);
 // RotaryEncoder encoder(PIN_ENC_INPUT_1, PIN_ENC_INPUT_2, RotaryEncoder::LatchMode::FOUR0);
-// RotaryEncoder encoder(PIN_ENC_INPUT_1, PIN_ENC_INPUT_2, RotaryEncoder::LatchMode::FOUR3);
+RotaryEncoder encoder(PIN_ENC_INPUT_1, PIN_ENC_INPUT_2, RotaryEncoder::LatchMode::FOUR3);
 
 // ----------------------------- LED BLINK MODE SETUP
 #ifdef MODE_LED_BLINK
@@ -41,7 +41,7 @@ bool blinkLED = false; // is the LED currently on via blinking
 #define PIN_LED_BOOL_D 8
 
 #define ENCODER_BOOLEAN_LOCK_INCREMENT // lock bool increment to +/- 1 per pulse
-
+#define LED_BOOL_ZERODELTA_JUMP        // if delta == 0 and inc locked, offset bool by 8
 
 int booleanValue = 0;
 
@@ -59,7 +59,7 @@ int ledTimedValue = 0;
 void timedLED();
 void timedLED(int displayTime);
 #else
-void timedLED();// just to prevent errors for usage throughout code
+void timedLED(); // just to prevent errors for usage throughout code
 #endif // MODE_LED_TIMED
 
 #pragma region PINMAPPING_CCW_DEFINITION
@@ -148,9 +148,12 @@ void loop()
         {
             booleanValue--;
         }
-        else if (delta == 0) {
+#ifdef LED_BOOL_ZERODELTA_JUMP
+        else if (delta == 0)
+        {
             booleanValue += 8;
         }
+#endif
 #else
         booleanValue += delta;
 #endif
@@ -168,7 +171,7 @@ void loop()
 #if LED_MODE_TIMED
 #endif
 
-        // finish pulse method 
+        // finish pulse method
         pos = newPos;
         encoder.setPosition(pos);
     }
