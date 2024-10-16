@@ -40,7 +40,7 @@ bool blinkLED = false; // is the LED currently on via blinking
 #define PIN_LED_BOOL_C 7
 #define PIN_LED_BOOL_D 8
 
-#define ENCODER_BOOLEAN_LOCK_INCREMENT // lock bool increment to +/- 1 per pulse
+// #define ENCODER_BOOLEAN_LOCK_INCREMENT // lock bool increment to +/- 1 per pulse
 #define LED_BOOL_ZERODELTA_JUMP        // if delta == 0 and inc locked, offset bool by 8
 
 int booleanValue = 0;
