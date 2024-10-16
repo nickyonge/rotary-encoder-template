@@ -306,17 +306,6 @@ void setBooleanLEDs(bool a, bool b, bool c, bool d)
     digitalWritePin(PIN_LED_BOOL_D, d ? HIGH : LOW);
 }
 
-void digitalWritePin(uint8_t pin, uint8_t state)
-{
-#ifdef SWITCH_SETS_LEDS
-    if (sw)
-    {
-        state = SWITCH_SET_LED_STATE;
-    }
-#endif
-    digitalWrite(pin, state);
-}
-
 #endif
 
 #ifdef MODE_LED_TIMED
@@ -333,5 +322,14 @@ void timedLED(int displayTime)
     }
 }
 #else
-void timedLED();
+
+void digitalWritePin(uint8_t pin, uint8_t state)
+{
+#ifdef SWITCH_SETS_LEDS
+    if (sw)
+    {
+        state = SWITCH_SET_LED_STATE;
+    }
 #endif
+    digitalWrite(pin, state);
+}
