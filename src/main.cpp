@@ -8,8 +8,8 @@
 #include <EnableInterrupt.h>
 
 // #define MODE_LED_BLINK   // blink on/off LED mode
-#define MODE_LED_BOOLEAN // Boolean counting LED mode
-#define MODE_LED_TIMED   // timed LED mode (useful for debugging)
+// #define MODE_LED_BOOLEAN // Boolean counting LED mode
+#define MODE_LED_TIMED // timed LED mode (useful for debugging)
 
 #define PIN_ENC_SWITCH 4
 #define PIN_ENC_INPUT_1 3 // A7, PCINT7
@@ -25,7 +25,7 @@ RotaryEncoder encoder(PIN_ENC_INPUT_1, PIN_ENC_INPUT_2, RotaryEncoder::LatchMode
 
 static bool sw = false; // is switch currently pressed? read at beginning of loop()
 
-#define SWITCH_SETS_LEDS          // if defined, holding switch sets LEDs to the given state
+// #define SWITCH_SETS_LEDS          // if defined, holding switch sets LEDs to the given state
 #define SWITCH_SET_LED_STATE HIGH // if SWITCH_SETS_LEDS defined, set them to this state
 
 void digitalWritePin(uint8_t pin, uint8_t state); // digitalWrite that accommodates pin state
@@ -70,10 +70,13 @@ void setBooleanLEDs(bool a, bool b, bool c, bool d);
 
 #define PIN_LED_TIMED 5
 int ledTimedValue = 0;
+void timedLEDAlt(); // alternate override, testing only
 void timedLED();
 void timedLED(int displayTime);
 #else
-void timedLED(); // just to prevent errors for usage throughout code
+void timedLEDAlt();             // error prevention, alternate override, testing only
+void timedLED();                // just to prevent errors for usage throughout code
+void timedLED(int displayTime); // error prevention
 #endif // MODE_LED_TIMED
 
 #pragma region PINMAPPING_CCW_DEFINITION
@@ -108,6 +111,10 @@ void setup()
 
 #ifdef MODE_LED_TIMED
     pinMode(PIN_LED_TIMED, OUTPUT);
+
+    // timed interrupt
+    enableInterrupt(PIN_ENC_SWITCH, timedLEDAlt, CHANGE);
+
 #endif
 }
 
@@ -183,7 +190,8 @@ void loop()
         setBooleanLEDs(booleanValue);
 #endif
 
-#if LED_MODE_TIMED
+#ifdef MODE_LED_TIMED
+        // pulse in timed mode
 #endif
 
         // finish pulse method
@@ -210,21 +218,29 @@ void loop()
 
 #ifdef MODE_LED_TIMED
 
-    if (sw && sw != lastSw)
-    {
-        timedLED();
-    }
+    // timedLED trigger on press switch
+    // if (sw && sw != lastSw)
+    // {
+    //     timedLED();
+    // }
 
     if (ledTimedValue > 0)
     {
         ledTimedValue--;
         digitalWritePin(PIN_LED_TIMED, ledTimedValue > 0 ? HIGH : LOW);
+#ifdef MODE_LED_BOOLEAN
+        // if bool mode and timed value done, reset bool LEDs
+        if (ledTimedValue == 0)
+        {
+            setBooleanLEDs(booleanValue);
+        }
+#endif
     }
 #endif
 
     if (sw != lastSw)
     {
-// switch state changed, update as needed 
+// switch state changed, update as needed
 #ifdef MODE_LED_BOOLEAN
         setBooleanLEDs(booleanValue);
 #endif
@@ -310,6 +326,10 @@ void setBooleanLEDs(bool a, bool b, bool c, bool d)
 
 #ifdef MODE_LED_TIMED
 
+void timedLEDAlt()
+{
+    timedLED();
+}
 void timedLED()
 {
     timedLED(500);
@@ -322,6 +342,11 @@ void timedLED(int displayTime)
     }
 }
 #else
+void timedLEDAlt() {}
+void timedLED() {}
+
+void timedLED(int displayTime) {}
+#endif
 
 void digitalWritePin(uint8_t pin, uint8_t state)
 {
