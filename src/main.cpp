@@ -7,7 +7,7 @@
 #include <RotaryEncoder.h>
 #include <EnableInterrupt.h>
 
-#define MODE_LED_BLINK   // blink on/off LED mode
+// #define MODE_LED_BLINK   // blink on/off LED mode
 #define MODE_LED_BOOLEAN // Boolean counting LED mode
 #define MODE_LED_TIMED   // timed LED mode (useful for debugging)
 
