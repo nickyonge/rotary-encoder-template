@@ -70,13 +70,9 @@ void setBooleanLEDs(bool a, bool b, bool c, bool d);
 
 #define PIN_LED_TIMED 5
 int ledTimedValue = 0;
-void timedLEDAlt(); // alternate override, testing only
 void timedLED();
-void timedLED(int displayTime);
 #else
-void timedLEDAlt();             // error prevention, alternate override, testing only
-void timedLED();                // just to prevent errors for usage throughout code
-void timedLED(int displayTime); // error prevention
+void timedLED(); // just to prevent errors for usage throughout code
 #endif // MODE_LED_TIMED
 
 #pragma region PINMAPPING_CCW_DEFINITION
@@ -326,26 +322,15 @@ void setBooleanLEDs(bool a, bool b, bool c, bool d)
 
 #ifdef MODE_LED_TIMED
 
-void timedLEDAlt()
-{
-    timedLED();
-}
 void timedLED()
 {
-    timedLED(500);
-}
-void timedLED(int displayTime)
-{
-    if (ledTimedValue < displayTime)
-    {
-        ledTimedValue = displayTime;
-    }
+    // if (ledTimedValue < 500)
+    // {
+    ledTimedValue = 500;
+    // }
 }
 #else
-void timedLEDAlt() {}
 void timedLED() {}
-
-void timedLED(int displayTime) {}
 #endif
 
 void digitalWritePin(uint8_t pin, uint8_t state)
