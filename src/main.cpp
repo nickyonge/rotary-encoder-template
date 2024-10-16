@@ -3,8 +3,9 @@
 #include <Arduino.h>
 #include <RotaryEncoder.h>
 
-#define MODE_LED_BLINK
+// #define MODE_LED_BLINK
 #define MODE_LED_BOOLEAN
+// #define MODE_LED_TIMED
 
 #define PIN_ENC_SWITCH 4
 #define PIN_ENC_INPUT_1 2 // INT0, PCINT10
@@ -41,6 +42,7 @@ bool blinkLED = false; // is the LED currently on via blinking
 
 #define ENCODER_BOOLEAN_LOCK_INCREMENT // lock bool increment to +/- 1 per pulse
 
+
 int booleanValue = 0;
 
 // set boolean LED values based on an input int (value must be 0-15)
@@ -49,6 +51,16 @@ void setBooleanLEDs(int value);
 void setBooleanLEDs(bool a, bool b, bool c, bool d);
 
 #endif // MODE_LED_BOOLEAN
+
+#ifdef MODE_LED_TIMED
+
+#define PIN_LED_TIMED 5
+int ledTimedValue = 0;
+void timedLED();
+void timedLED(int displayTime);
+#else
+void timedLED();// just to prevent errors for usage throughout code
+#endif // MODE_LED_TIMED
 
 #pragma region PINMAPPING_CCW_DEFINITION
 // some basic warnings to ensure Arduino pinmapping is CCW
@@ -78,6 +90,10 @@ void setup()
     pinMode(PIN_LED_BOOL_C, OUTPUT);
     pinMode(PIN_LED_BOOL_D, OUTPUT);
     setBooleanLEDs(0);
+#endif
+
+#ifdef MODE_LED_TIMED
+    pinMode(PIN_LED_TIMED, OUTPUT);
 #endif
 }
 
@@ -132,6 +148,9 @@ void loop()
         {
             booleanValue--;
         }
+        else if (delta == 0) {
+            booleanValue += 8;
+        }
 #else
         booleanValue += delta;
 #endif
@@ -146,7 +165,12 @@ void loop()
         setBooleanLEDs(booleanValue);
 #endif
 
+#if LED_MODE_TIMED
+#endif
+
+        // finish pulse method 
         pos = newPos;
+        encoder.setPosition(pos);
     }
 
 #ifdef MODE_LED_BLINK
@@ -164,6 +188,14 @@ void loop()
 
 #ifdef MODE_LED_BOOLEAN
     // boolean mode
+#endif
+
+#ifdef MODE_LED_TIMED
+    if (ledTimedValue > 0)
+    {
+        ledTimedValue--;
+        digitalWrite(PIN_LED_TIMED, ledTimedValue > 0 ? HIGH : LOW);
+    }
 #endif
 
     // end loop
@@ -242,4 +274,21 @@ void setBooleanLEDs(bool a, bool b, bool c, bool d)
     digitalWrite(PIN_LED_BOOL_D, d ? HIGH : LOW);
 }
 
+#endif
+
+#ifdef MODE_LED_TIMED
+
+void timedLED()
+{
+    timedLED(500);
+}
+void timedLED(int displayTime)
+{
+    if (ledTimedValue < displayTime)
+    {
+        ledTimedValue = displayTime;
+    }
+}
+#else
+void timedLED();
 #endif
