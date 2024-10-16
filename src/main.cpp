@@ -1,14 +1,15 @@
 // basic test script for using a rotary encoder with an ATtiny84
 
 // TODO: attach interrupt pin to INT0, PCINT10 (pin 2)
-// TODO: attach interrupt pin to enc switch and confirm sleep 
+// TODO: attach interrupt pin to enc switch and confirm sleep
 
 #include <Arduino.h>
 #include <RotaryEncoder.h>
+#include <EnableInterrupt.h>
 
-// #define MODE_LED_BLINK
-#define MODE_LED_BOOLEAN
-// #define MODE_LED_TIMED
+#define MODE_LED_BLINK   // blink on/off LED mode
+#define MODE_LED_BOOLEAN // Boolean counting LED mode
+#define MODE_LED_TIMED   // timed LED mode (useful for debugging)
 
 #define PIN_ENC_SWITCH 4
 #define PIN_ENC_INPUT_1 3 // A7, PCINT7
@@ -22,7 +23,12 @@
 RotaryEncoder encoder(PIN_ENC_INPUT_1, PIN_ENC_INPUT_2, RotaryEncoder::LatchMode::FOUR3);
 // FOUR0 - default, inc/dec pos by 1, reverse direction results in 0
 
-static bool sw = false;// is switch currently pressed? read at beginning of loop()
+static bool sw = false; // is switch currently pressed? read at beginning of loop()
+
+#define SWITCH_SETS_LEDS          // if defined, holding switch sets LEDs to the given state
+#define SWITCH_SET_LED_STATE HIGH // if SWITCH_SETS_LEDS defined, set them to this state
+
+void digitalWritePin(uint8_t pin, uint8_t state); // digitalWrite that accommodates pin state
 
 // ----------------------------- LED BLINK MODE SETUP
 #ifdef MODE_LED_BLINK
@@ -49,7 +55,7 @@ bool blinkLED = false; // is the LED currently on via blinking
 #define PIN_LED_BOOL_D 8
 
 // #define ENCODER_BOOLEAN_LOCK_INCREMENT // lock bool increment to +/- 1 per pulse
-#define LED_BOOL_ZERODELTA_JUMP        // if delta == 0 and inc locked, offset bool by 8
+#define LED_BOOL_ZERODELTA_JUMP // if delta == 0 and inc locked, offset bool by 8
 
 int booleanValue = 0;
 
@@ -109,6 +115,7 @@ void loop()
 {
 
     // get switch input
+    bool lastSw = sw;                  // switch state on last loop
     sw = !digitalRead(PIN_ENC_SWITCH); // if sw true, force LED on
 
     // get encoder input
@@ -194,7 +201,7 @@ void loop()
     }
 
     // put your main code here, to run repeatedly:
-    digitalWrite(PIN_LED_BLINK, sw || blinkLED ? HIGH : LOW);
+    digitalWritePin(PIN_LED_BLINK, blinkLED ? HIGH : LOW);
 #endif
 
 #ifdef MODE_LED_BOOLEAN
@@ -202,12 +209,26 @@ void loop()
 #endif
 
 #ifdef MODE_LED_TIMED
+
+    if (sw && sw != lastSw)
+    {
+        timedLED();
+    }
+
     if (ledTimedValue > 0)
     {
         ledTimedValue--;
-        digitalWrite(PIN_LED_TIMED, ledTimedValue > 0 ? HIGH : LOW);
+        digitalWritePin(PIN_LED_TIMED, ledTimedValue > 0 ? HIGH : LOW);
     }
 #endif
+
+    if (sw != lastSw)
+    {
+// switch state changed, update as needed 
+#ifdef MODE_LED_BOOLEAN
+        setBooleanLEDs(booleanValue);
+#endif
+    }
 
     // end loop
     delay(1);
@@ -279,10 +300,21 @@ void setBooleanLEDs(int value)
 }
 void setBooleanLEDs(bool a, bool b, bool c, bool d)
 {
-    digitalWrite(PIN_LED_BOOL_A, sw || a ? HIGH : LOW);
-    digitalWrite(PIN_LED_BOOL_B, sw || b ? HIGH : LOW);
-    digitalWrite(PIN_LED_BOOL_C, sw || c ? HIGH : LOW);
-    digitalWrite(PIN_LED_BOOL_D, sw || d ? HIGH : LOW);
+    digitalWritePin(PIN_LED_BOOL_A, a ? HIGH : LOW);
+    digitalWritePin(PIN_LED_BOOL_B, b ? HIGH : LOW);
+    digitalWritePin(PIN_LED_BOOL_C, c ? HIGH : LOW);
+    digitalWritePin(PIN_LED_BOOL_D, d ? HIGH : LOW);
+}
+
+void digitalWritePin(uint8_t pin, uint8_t state)
+{
+#ifdef SWITCH_SETS_LEDS
+    if (sw)
+    {
+        state = SWITCH_SET_LED_STATE;
+    }
+#endif
+    digitalWrite(pin, state);
 }
 
 #endif
