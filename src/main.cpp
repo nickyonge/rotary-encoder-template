@@ -8,7 +8,7 @@
 
 #include <avr/sleep.h>
 
-#define MODE_LED_BLINK   // blink on/off LED mode
+// #define MODE_LED_BLINK   // blink on/off LED mode
 #define MODE_LED_BOOLEAN // Boolean counting LED mode
 // #define MODE_LED_TIMED   // timed LED mode (useful for debugging)
 
@@ -24,7 +24,7 @@
 RotaryEncoder encoder(PIN_ENC_INPUT_1, PIN_ENC_INPUT_2, RotaryEncoder::LatchMode::FOUR3);
 // FOUR0 - default, inc/dec pos by 1, reverse direction results in 0
 
-static int encPos = 0;// encoder position 
+static int encPos = 0;         // encoder position
 static bool encSwitch = false; // is enc switch currently pressed? read at beginning of loop()
 
 // #define SWITCH_SETS_LEDS          // if defined, holding switch sets LEDs to the given state
@@ -35,7 +35,7 @@ void digitalWritePin(uint8_t pin, uint8_t state); // digitalWrite that accommoda
 volatile bool interrupted = false;
 
 void sleep();
-#define SLEEP_LOOP_TIMEOUT 5000
+// #define SLEEP_LOOP_TIMEOUT 5000
 int sleepTimeout = 0;
 
 // ----------------------------- LED BLINK MODE SETUP
@@ -135,8 +135,8 @@ void setup()
 
     // init sleep mode
     // set_sleep_mode(SLEEP_MODE_IDLE);
-    set_sleep_mode(SLEEP_MODE_STANDBY);
-    // set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+    // set_sleep_mode(SLEEP_MODE_STANDBY);
+    set_sleep_mode(SLEEP_MODE_PWR_DOWN);
 }
 
 void loop()
@@ -147,10 +147,8 @@ void loop()
     encSwitch = !digitalRead(PIN_ENC_SWITCH); // if encSwitch true, force LED on
 
     // get encoder input
-    static int pos = 0;
     encoder.tick();
     int newPos = encoder.getPosition();
-    bool forceUpdate = false;
 
     // determine if interrupted
     if (interrupted)
@@ -164,9 +162,9 @@ void loop()
     }
 
     // update encoder on change
-    if (pos != newPos)
+    if (encPos != newPos)
     {
-        int delta = newPos - pos;
+        int delta = newPos - encPos;
 
 #ifdef MODE_LED_BLINK
         // blink mode
@@ -230,8 +228,8 @@ void loop()
 #endif
 
         // finish pulse method
-        pos = newPos;
-        encoder.setPosition(pos);
+        encPos = newPos;
+        encoder.setPosition(encPos);
     }
 
 #ifdef MODE_LED_BLINK
@@ -283,12 +281,15 @@ void loop()
 
 // update sleep timer
 #ifdef SLEEP_LOOP_TIMEOUT
-    sleepTimeout++;
-    if (sleepTimeout > SLEEP_LOOP_TIMEOUT)
+    if (SLEEP_LOOP_TIMEOUT > 0)
     {
-        sleepTimeout = 0;
-        sleep();
-        // invertBooleanLEDs();
+        sleepTimeout++;
+        if (sleepTimeout > SLEEP_LOOP_TIMEOUT)
+        {
+            sleepTimeout = 0;
+            sleep();
+            // invertBooleanLEDs();
+        }
     }
 #endif
 
@@ -401,12 +402,13 @@ void timedLED() {}
 
 void sleep()
 {
-    sleep_enable(); // enable sleep bit
-    // sleep_bod_disable(); // disable brownout detection
-    sei();       // ensure interrupts are active
-    sleep_cpu(); // begin sleep mode
+    sleep_enable();      // enable sleep bit
+    sleep_bod_disable(); // disable brownout detection
+    sei();               // ensure interrupts are active
+    sleep_cpu();         // begin sleep mode
     // device will automatically re-enable on receiving an interrupt
-    sleep_disable();
+    sleep_disable(); // disable sleep bit
+    sei();           // re-enable interrupts again
 }
 
 void digitalWritePin(uint8_t pin, uint8_t state)
