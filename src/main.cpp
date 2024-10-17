@@ -8,11 +8,11 @@
 
 // #define MODE_LED_BLINK   // blink on/off LED mode
 #define MODE_LED_BOOLEAN // Boolean counting LED mode
-#define MODE_LED_TIMED   // timed LED mode (useful for debugging)
+// #define MODE_LED_TIMED   // timed LED mode (useful for debugging)
 
-#define PIN_ENC_SWITCH 4
+#define PIN_ENC_SWITCH 2  // INT0, PCINT10
 #define PIN_ENC_INPUT_1 3 // A7, PCINT7
-#define PIN_ENC_INPUT_2 2 // INT0, PCINT10
+#define PIN_ENC_INPUT_2 4 //
 
 // FOUR3 - preferred, inc/dec pos by 1, reverse direction applies inc/dec as expected
 // TWO03 - inc/dec pos by 2, reverse direction applies inc/dec as expected
@@ -29,6 +29,7 @@ static bool sw = false; // is switch currently pressed? read at beginning of loo
 
 void onInterrupt();                               // called on switch interrupt
 void digitalWritePin(uint8_t pin, uint8_t state); // digitalWrite that accommodates pin state
+volatile bool interrupted = false;
 
 // ----------------------------- LED BLINK MODE SETUP
 #ifdef MODE_LED_BLINK
@@ -58,7 +59,7 @@ bool blinkLED = false; // is the LED currently on via blinking
 #define LED_BOOL_ZERODELTA_JUMP // if delta == 0 and inc locked, offset bool by 8
 
 // value, from 0-15, to set boolean LEDs to
-int booleanValue = 0;
+volatile byte booleanValue = 0;
 
 // update boolean LEDs to current booleanValue
 void setBooleanLEDs();
@@ -113,6 +114,10 @@ void setup()
 #endif
 
     enableInterrupt(PIN_ENC_SWITCH, onInterrupt, FALLING);
+
+    // test onInterruput reset
+    // onInterrupt();
+    // interrupted = false;
 }
 
 void loop()
@@ -126,7 +131,22 @@ void loop()
     static int pos = 0;
     encoder.tick();
     int newPos = encoder.getPosition();
-    if (pos != newPos)
+    bool forceUpdate = false;
+
+    // determine if interrupted
+    if (interrupted)
+    {
+        interrupted = false;
+        forceUpdate = true;
+        
+        #ifdef MODE_LED_BOOLEAN
+        // invert boolean value 
+        booleanValue = 15 - booleanValue;
+        #endif
+    }
+
+    // update encoder on change
+    if (forceUpdate || pos != newPos)
     {
         int delta = newPos - pos;
 
@@ -249,10 +269,7 @@ void loop()
 
 void onInterrupt()
 {
-#ifdef MODE_LED_BOOLEAN
-    booleanValue += 8;
-    setBooleanLEDs();
-#endif
+    interrupted = true;
 }
 
 #ifdef MODE_LED_BOOLEAN
