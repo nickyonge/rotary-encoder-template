@@ -6,7 +6,9 @@
 #include <RotaryEncoder.h>
 #include <EnableInterrupt.h>
 
-// #define MODE_LED_BLINK   // blink on/off LED mode
+#include <avr/sleep.h>
+
+#define MODE_LED_BLINK   // blink on/off LED mode
 #define MODE_LED_BOOLEAN // Boolean counting LED mode
 // #define MODE_LED_TIMED   // timed LED mode (useful for debugging)
 
@@ -30,6 +32,8 @@ static bool sw = false; // is switch currently pressed? read at beginning of loo
 void onInterrupt();                               // called on switch interrupt
 void digitalWritePin(uint8_t pin, uint8_t state); // digitalWrite that accommodates pin state
 volatile bool interrupted = false;
+
+void sleep();
 
 // ----------------------------- LED BLINK MODE SETUP
 #ifdef MODE_LED_BLINK
@@ -113,11 +117,20 @@ void setup()
     pinMode(PIN_LED_TIMED, OUTPUT);
 #endif
 
+    // init interrupt
     enableInterrupt(PIN_ENC_SWITCH, onInterrupt, FALLING);
 
     // test onInterruput reset
     // onInterrupt();
     // interrupted = false;
+
+    // cli(); // disable interrupts
+    // sei(); // enable interrupts
+
+    // init sleep mode
+    set_sleep_mode(SLEEP_MODE_IDLE);
+    // set_sleep_mode(SLEEP_MODE_STANDBY);
+    // set_sleep_mode(SLEEP_MODE_PWR_DOWN);
 }
 
 void loop()
@@ -138,11 +151,11 @@ void loop()
     {
         interrupted = false;
         forceUpdate = true;
-        
-        #ifdef MODE_LED_BOOLEAN
-        // invert boolean value 
+
+#ifdef MODE_LED_BOOLEAN
+        // invert boolean value
         booleanValue = 15 - booleanValue;
-        #endif
+#endif
     }
 
     // update encoder on change
@@ -363,6 +376,16 @@ void timedLED()
 #else
 void timedLED() {}
 #endif
+
+void sleep()
+{
+    sleep_enable();      // enable sleep bit
+    sleep_bod_disable(); // disable brownout detection
+    sei();               // ensure interrupts are active
+    sleep_cpu();         // begin sleep mode
+    // device will automatically re-enable on receiving an interrupt
+    sleep_disable();
+}
 
 void digitalWritePin(uint8_t pin, uint8_t state)
 {
