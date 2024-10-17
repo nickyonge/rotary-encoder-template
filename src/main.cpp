@@ -24,7 +24,8 @@
 RotaryEncoder encoder(PIN_ENC_INPUT_1, PIN_ENC_INPUT_2, RotaryEncoder::LatchMode::FOUR3);
 // FOUR0 - default, inc/dec pos by 1, reverse direction results in 0
 
-static bool sw = false; // is switch currently pressed? read at beginning of loop()
+static int encPos = 0;// encoder position 
+static bool encSwitch = false; // is enc switch currently pressed? read at beginning of loop()
 
 // #define SWITCH_SETS_LEDS          // if defined, holding switch sets LEDs to the given state
 #define SWITCH_SET_LED_STATE HIGH // if SWITCH_SETS_LEDS defined, set them to this state
@@ -73,6 +74,9 @@ void setBooleanLEDs();
 void setBooleanLEDs(int value);
 // set boolean LED values directly
 void setBooleanLEDs(bool a, bool b, bool c, bool d);
+
+// inverts boolean LED values (useful for testing)
+void invertBooleanLEDs();
 
 #endif // MODE_LED_BOOLEAN
 
@@ -130,8 +134,8 @@ void setup()
     // sei(); // enable interrupts
 
     // init sleep mode
-    set_sleep_mode(SLEEP_MODE_IDLE);
-    // set_sleep_mode(SLEEP_MODE_STANDBY);
+    // set_sleep_mode(SLEEP_MODE_IDLE);
+    set_sleep_mode(SLEEP_MODE_STANDBY);
     // set_sleep_mode(SLEEP_MODE_PWR_DOWN);
 }
 
@@ -139,8 +143,8 @@ void loop()
 {
 
     // get switch input
-    bool lastSw = sw;                  // switch state on last loop
-    sw = !digitalRead(PIN_ENC_SWITCH); // if sw true, force LED on
+    bool lastSw = encSwitch;                  // switch state on last loop
+    encSwitch = !digitalRead(PIN_ENC_SWITCH); // if encSwitch true, force LED on
 
     // get encoder input
     static int pos = 0;
@@ -152,16 +156,15 @@ void loop()
     if (interrupted)
     {
         interrupted = false;
-        forceUpdate = true;
 
 #ifdef MODE_LED_BOOLEAN
         // invert boolean value
-        booleanValue = 15 - booleanValue;
+        invertBooleanLEDs();
 #endif
     }
 
     // update encoder on change
-    if (forceUpdate || pos != newPos)
+    if (pos != newPos)
     {
         int delta = newPos - pos;
 
@@ -251,7 +254,7 @@ void loop()
 #ifdef MODE_LED_TIMED
 
     // timedLED trigger on press switch
-    // if (sw && sw != lastSw)
+    // if (encSwitch && encSwitch != lastSw)
     // {
     //     timedLED();
     // }
@@ -270,7 +273,7 @@ void loop()
     }
 #endif
 
-    if (sw != lastSw)
+    if (encSwitch != lastSw)
     {
 // switch state changed, update as needed
 #ifdef MODE_LED_BOOLEAN
@@ -285,6 +288,7 @@ void loop()
     {
         sleepTimeout = 0;
         sleep();
+        // invertBooleanLEDs();
     }
 #endif
 
@@ -374,6 +378,12 @@ void setBooleanLEDs(bool a, bool b, bool c, bool d)
     digitalWritePin(PIN_LED_BOOL_D, d ? HIGH : LOW);
 }
 
+void invertBooleanLEDs()
+{
+    booleanValue = 15 - booleanValue;
+    setBooleanLEDs();
+}
+
 #endif
 
 #ifdef MODE_LED_TIMED
@@ -391,10 +401,10 @@ void timedLED() {}
 
 void sleep()
 {
-    sleep_enable();      // enable sleep bit
-    sleep_bod_disable(); // disable brownout detection
-    sei();               // ensure interrupts are active
-    sleep_cpu();         // begin sleep mode
+    sleep_enable(); // enable sleep bit
+    // sleep_bod_disable(); // disable brownout detection
+    sei();       // ensure interrupts are active
+    sleep_cpu(); // begin sleep mode
     // device will automatically re-enable on receiving an interrupt
     sleep_disable();
 }
@@ -402,7 +412,7 @@ void sleep()
 void digitalWritePin(uint8_t pin, uint8_t state)
 {
 #ifdef SWITCH_SETS_LEDS
-    if (sw)
+    if (encSwitch)
     {
         state = SWITCH_SET_LED_STATE;
     }
