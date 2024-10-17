@@ -10,7 +10,7 @@
 #define MODE_LED_BOOLEAN // Boolean counting LED mode
 // #define MODE_LED_TIMED   // timed LED mode (useful for debugging)
 
-#define PIN_ENC_SWITCH 2  // INT0, PCINT10
+#define PIN_ENC_SWITCH 2  // INT0, PCINT10 (add 10F cap to debounce)
 #define PIN_ENC_INPUT_1 3 // A7, PCINT7
 #define PIN_ENC_INPUT_2 4 //
 
@@ -59,7 +59,7 @@ bool blinkLED = false; // is the LED currently on via blinking
 #define LED_BOOL_ZERODELTA_JUMP // if delta == 0 and inc locked, offset bool by 8
 
 // value, from 0-15, to set boolean LEDs to
-volatile byte booleanValue = 0;
+int booleanValue = 0;
 
 // update boolean LEDs to current booleanValue
 void setBooleanLEDs();
