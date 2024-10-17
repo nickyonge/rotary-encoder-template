@@ -34,6 +34,8 @@ void digitalWritePin(uint8_t pin, uint8_t state); // digitalWrite that accommoda
 volatile bool interrupted = false;
 
 void sleep();
+#define SLEEP_LOOP_TIMEOUT 5000
+int sleepTimeout = 0;
 
 // ----------------------------- LED BLINK MODE SETUP
 #ifdef MODE_LED_BLINK
@@ -276,6 +278,16 @@ void loop()
 #endif
     }
 
+// update sleep timer
+#ifdef SLEEP_LOOP_TIMEOUT
+    sleepTimeout++;
+    if (sleepTimeout > SLEEP_LOOP_TIMEOUT)
+    {
+        sleepTimeout = 0;
+        sleep();
+    }
+#endif
+
     // end loop
     delay(1);
 }
@@ -368,10 +380,10 @@ void setBooleanLEDs(bool a, bool b, bool c, bool d)
 
 void timedLED()
 {
-    // if (ledTimedValue < 500)
-    // {
-    ledTimedValue = 500;
-    // }
+    if (ledTimedValue < 500)
+    {
+        ledTimedValue = 500;
+    }
 }
 #else
 void timedLED() {}
