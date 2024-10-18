@@ -89,16 +89,43 @@ void timedLED();
 void timedLED(); // just to prevent errors for usage throughout code
 #endif // MODE_LED_TIMED
 
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas" // needed so that #pragma region doesn't make an IDE warning =_=
 #pragma region PINMAPPING_CCW_DEFINITION
-// some basic warnings to ensure Arduino pinmapping is CCW
+// Some basic warnings to ensure ATtinyX4's Arduino pinmapping is defined correctly intended
+// 
+// Uncomment one of the two lines below to select the desired pinmapping `
+#define USE_CW_PINMAPPING
+// #define USE_CCW_PINMAPPING
+// 
+#ifdef USE_CW_PINMAPPING
+#ifdef USE_CCW_PINMAPPING
+#error "Both CW and CCW pinmappings are specified - only one may be selected!"
+#else
+#ifdef PINMAPPING_CCW
+#error "Project uses CW pin mapping, but CCW pinmapping is defined! Ensure ini board_build.variant is tinyX4_reverse (optional if board is attiny84_cw_pinmap), or omitted (if board is attiny84)"
+#else
+#ifndef PINMAPPING_CW
+#error "Project uses CW pin mapping, but PINMAPPING_CW is undefined! Ensure ini board_build.variant is omitted (if board is attiny84), or that it's tinyX4 (optional, or if board is attiny84_cw_pinmap)"
+#endif
+#endif
+#endif
+#else
+#ifndef USE_CCW_PINMAPPING
+#error "Neither CW or CCW pinmappings are specified - one must be selected!"
+#else
 #ifdef PINMAPPING_CW
-#error "Code written for CCW pin mapping!"
+#error "Project uses CCW pin mapping, but CW pinmapping is defined! Ensure ini board_build.variant is omitted (if board is attiny84), or that it's tinyX4 (optional, or if board is attiny84_cw_pinmap)"
 #else
 #ifndef PINMAPPING_CCW
-#error "Code written for CCW pin mapping, but PINMAPPING_CCW is undefined!"
+#error "Project uses CCW pin mapping, but PINMAPPING_CCW is undefined! Ensure ini board_build.variant is tinyX4_reverse (optional if board is attiny84_cw_pinmap), or omitted (if board is attiny84)"
+#endif
+#endif
 #endif
 #endif
 #pragma endregion PINMAPPING_CCW_DEFINITION
+#pragma GCC diagnostic pop // re-enable unknown pragma errors 
 
 void setup()
 {
