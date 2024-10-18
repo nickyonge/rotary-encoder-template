@@ -1,7 +1,5 @@
 // basic test script for using a rotary encoder with an ATtiny84
 
-// TODO: attach interrupt pin to enc switch and confirm sleep
-
 #include <Arduino.h>
 #include <RotaryEncoder.h>   // RotaryEncoder by Matthias Hertel
 #include <EnableInterrupt.h> // EnableInterrupt by Mike 'GreyGnome' Schwager
