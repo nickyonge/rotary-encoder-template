@@ -3,8 +3,8 @@
 // TODO: attach interrupt pin to enc switch and confirm sleep
 
 #include <Arduino.h>
-#include <RotaryEncoder.h>
-#include <EnableInterrupt.h>
+#include <RotaryEncoder.h>   // RotaryEncoder by Matthias Hertel
+#include <EnableInterrupt.h> // EnableInterrupt by Mike 'GreyGnome' Schwager
 
 #include <avr/sleep.h>
 
@@ -16,13 +16,16 @@
 #define PIN_ENC_INPUT_1 7 // A7, PCINT7
 #define PIN_ENC_INPUT_2 6 //
 
+// ROTARY ENCODER MODES
+
+// FOUR0 - default, inc/dec pos by 1, reverse direction results in 0
 // FOUR3 - preferred, inc/dec pos by 1, reverse direction applies inc/dec as expected
 // TWO03 - inc/dec pos by 2, reverse direction applies inc/dec as expected
+
 // RotaryEncoder encoder(PIN_ENC_INPUT_1, PIN_ENC_INPUT_2);// default FOUR0
 // RotaryEncoder encoder(PIN_ENC_INPUT_1, PIN_ENC_INPUT_2, RotaryEncoder::LatchMode::TWO03);
 // RotaryEncoder encoder(PIN_ENC_INPUT_1, PIN_ENC_INPUT_2, RotaryEncoder::LatchMode::FOUR0);
 RotaryEncoder encoder(PIN_ENC_INPUT_1, PIN_ENC_INPUT_2, RotaryEncoder::LatchMode::FOUR3);
-// FOUR0 - default, inc/dec pos by 1, reverse direction results in 0
 
 static int encPos = 0;         // encoder position
 static bool encSwitch = false; // is enc switch currently pressed? read at beginning of loop()
