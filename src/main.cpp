@@ -128,14 +128,13 @@ void timedLED(); // just to prevent errors for usage throughout code
 #endif
 #endif
 #endif
-
 // for more info see: https://github.com/SpenceKonde/ATTinyCore/blob/77ae92aafb2294f9838c3e15575c2b5477066439/avr/extras/ATtiny_x4.md#pin-mapping-options
-
 // --- pinmapping definition check end ---
 #pragma endregion
 
 #pragma GCC diagnostic pop // re-enable unknown pragma errors
-#endif                     // end pinmapping warnings
+#endif
+// end pinmapping warnings
 
 void setup()
 {
