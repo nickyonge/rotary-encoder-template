@@ -89,16 +89,19 @@ void timedLED();
 void timedLED(); // just to prevent errors for usage throughout code
 #endif // MODE_LED_TIMED
 
+// Warnings to ensure ATtinyX4's Arduino pinmapping is defined correctly
+#ifdef __AVR_ATtinyX4__                            // ensure relevant platform
+#pragma GCC diagnostic push                        // to prevent "unknown pragma" IDE warning, we have to add an ignore rule to GCC diagnostic
+#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable "unknown pragma" to allow for #region style code-folding
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunknown-pragmas" // needed so that #pragma region doesn't make an IDE warning =_=
-#pragma region PINMAPPING_CCW_DEFINITION
-// Some basic warnings to ensure ATtinyX4's Arduino pinmapping is defined correctly intended
-// 
-// Uncomment one of the two lines below to select the desired pinmapping `
-#define USE_CW_PINMAPPING
-// #define USE_CCW_PINMAPPING
-// 
+#pragma region ATTINYX4_PINMAPPING_DEFINITION
+// --- pinmapping definition check start ---
+
+// SETUP: Uncomment ONE of the two definitions below to select the desired pinmapping:
+
+#define USE_CW_PINMAPPING // this project uses CLOCKWISE (CW) pinmapping
+// #define USE_CCW_PINMAPPING // this project uses COUNTERCLOCKWISE (CCW) pinmapping
+
 #ifdef USE_CW_PINMAPPING
 #ifdef USE_CCW_PINMAPPING
 #error "Both CW and CCW pinmappings are specified - only one may be selected!"
@@ -124,8 +127,14 @@ void timedLED(); // just to prevent errors for usage throughout code
 #endif
 #endif
 #endif
-#pragma endregion PINMAPPING_CCW_DEFINITION
-#pragma GCC diagnostic pop // re-enable unknown pragma errors 
+
+// for more info see: https://github.com/SpenceKonde/ATTinyCore/blob/77ae92aafb2294f9838c3e15575c2b5477066439/avr/extras/ATtiny_x4.md#pin-mapping-options
+
+// --- pinmapping definition check end ---
+#pragma endregion
+
+#pragma GCC diagnostic pop // re-enable unknown pragma errors
+#endif                     // end pinmapping warnings
 
 void setup()
 {
