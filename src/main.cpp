@@ -12,9 +12,9 @@
 #define MODE_LED_BOOLEAN // Boolean counting LED mode
 // #define MODE_LED_TIMED   // timed LED mode (useful for debugging)
 
-#define PIN_ENC_SWITCH 2  // INT0, PCINT10 (add 10F cap to debounce)
-#define PIN_ENC_INPUT_1 3 // A7, PCINT7
-#define PIN_ENC_INPUT_2 4 //
+#define PIN_ENC_SWITCH 8  // INT0, PCINT10 (add 10F cap to debounce)
+#define PIN_ENC_INPUT_1 7 // A7, PCINT7
+#define PIN_ENC_INPUT_2 6 //
 
 // FOUR3 - preferred, inc/dec pos by 1, reverse direction applies inc/dec as expected
 // TWO03 - inc/dec pos by 2, reverse direction applies inc/dec as expected
@@ -58,9 +58,9 @@ bool blinkLED = false; // is the LED currently on via blinking
 #ifdef MODE_LED_BOOLEAN
 
 #define PIN_LED_BOOL_A 5
-#define PIN_LED_BOOL_B 6
-#define PIN_LED_BOOL_C 7
-#define PIN_LED_BOOL_D 8
+#define PIN_LED_BOOL_B 4
+#define PIN_LED_BOOL_C 3
+#define PIN_LED_BOOL_D 2
 
 // #define ENCODER_BOOLEAN_LOCK_INCREMENT // lock bool increment to +/- 1 per pulse
 #define LED_BOOL_ZERODELTA_JUMP // if delta == 0 and inc locked, offset bool by 8
